@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "Event": {
+      "title": "Event",
+      "description": "Band tour dates and events",
+      "type": "object",
+      "properties": {
+        "city": { "type": "string", "description": "City of the event" },
+        "venue": { "type": "string", "description": "Venue name" },
+        "date": { "type": "string", "format": "date", "description": "Date of the event" },
+        "ticketUrl": { "type": "string", "description": "URL to purchase tickets" },
+        "status": { "type": "string", "enum": ["upcoming", "cancelled", "completed"], "description": "Status of the event" },
+        "createdAt": { "type": "string", "description": "Timestamp of creation" }
+      },
+      "required": ["city", "venue", "date", "status"]
+    },
+    "MerchItem": {
+      "title": "Merch Item",
+      "description": "Band merchandise products",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "category": { "type": "string" },
+        "stock": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "price", "imageUrl", "stock"]
+    },
+    "NewsPost": {
+      "title": "News Post",
+      "description": "News updates from the band",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "publishDate": { "type": "string" },
+        "author": { "type": "string" }
+      },
+      "required": ["title", "content", "publishDate", "author"]
+    },
+    "FanMessage": {
+      "title": "Fan Message",
+      "description": "Messages sent by fans via contact form",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "email", "subject", "message", "createdAt"]
+    }
+  },
+  "firestore": {
+    "events": {
+      "schema": "Event",
+      "description": "Collection of tour dates"
+    },
+    "merchandise": {
+      "schema": "MerchItem",
+      "description": "Collection of band merchandise"
+    },
+    "news": {
+      "schema": "NewsPost",
+      "description": "Collection of band news"
+    },
+    "fanMessages": {
+      "schema": "FanMessage",
+      "description": "Collection of messages from contact form"
+    }
+  }
+}
