@@ -1,39 +1,36 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Link } from 'react-router-dom';
 import { db, handleFirestoreError, OperationType } from '../lib/firebase';
 import { collection, query, orderBy, onSnapshot, addDoc, serverTimestamp } from 'firebase/firestore';
-import { Calendar, Music as MusicIcon, Users, Image as ImageIcon, MessageSquare, Send } from 'lucide-react';
+import { Calendar, Music as MusicIcon, Users, Image as ImageIcon, MessageSquare, Send, ChevronLeft, ChevronRight } from 'lucide-react';
 import Hero from '../components/Hero';
-import { EventEntry, BandMember, NewsPost } from '../types';
+import { EventEntry, BandMember, GalleryImage } from '../types';
 import { format } from 'date-fns';
 import { cn } from '../lib/utils';
 
-const BAND_MEMBERS: BandMember[] = [
-  { name: 'Sagar', role: 'Vocals / Guitar', instruments: ['Vocals', 'Electric Guitar'], bio: 'The soulful voice behind Soch.', imageUrl: 'https://picsum.photos/seed/sagar/400/600' },
-  { name: 'Saroj', role: 'Lead Guitar', instruments: ['Lead Guitar'], bio: 'Master of melodic riffs.', imageUrl: 'https://picsum.photos/seed/saroj/400/600' },
-  { name: 'Bijay', role: 'Bass', instruments: ['Bass Guitar'], bio: 'The heartbeat of the band.', imageUrl: 'https://picsum.photos/seed/bijay/400/600' },
-  { name: 'Nabin', role: 'Drums', instruments: ['Drums', 'Percussion'], bio: 'Driving the rhythm forward.', imageUrl: 'https://picsum.photos/seed/nabin/400/600' },
-];
-
-const GALLERY_IMAGES = [
-  '/api/attachment/aistudio_attachment_1741636391456.png',
-  '/api/attachment/aistudio_attachment_1741541050228.png',
-  '/api/attachment/aistudio_attachment_1741540613247.png',
-  '/api/attachment/aistudio_attachment_1741540614041.png',
-  '/api/attachment/aistudio_attachment_1741540614760.png',
-  '/api/attachment/aistudio_attachment_1741540615569.png',
-  'https://images.unsplash.com/photo-1501612780327-45045538702b?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1493225255756-d9584f8606e9?auto=format&fit=crop&q=80&w=800',
-  'https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?auto=format&fit=crop&q=80&w=800',
-];
-
 export default function Home() {
   const [events, setEvents] = useState<EventEntry[]>([]);
+  const [gallery, setGallery] = useState<GalleryImage[]>([]);
+  const [members, setMembers] = useState<BandMember[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
+  const [loadingGallery, setLoadingGallery] = useState(true);
+  const [loadingMembers, setLoadingMembers] = useState(true);
   const [contactForm, setContactForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+
+  const carouselRef = React.useRef<HTMLDivElement>(null);
+
+  const scrollCarousel = (direction: 'left' | 'right') => {
+    if (carouselRef.current) {
+      const scrollAmount = carouselRef.current.offsetWidth * 0.8;
+      carouselRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      });
+    }
+  };
 
   useEffect(() => {
     const q = query(collection(db, 'events'), orderBy('date', 'asc'));
@@ -42,6 +39,28 @@ export default function Home() {
       setLoadingEvents(false);
     }, (err) => {
       handleFirestoreError(err, OperationType.LIST, 'events');
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'gallery'), orderBy('createdAt', 'desc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setGallery(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as GalleryImage)));
+      setLoadingGallery(false);
+    }, (err) => {
+      handleFirestoreError(err, OperationType.LIST, 'gallery');
+    });
+    return () => unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const q = query(collection(db, 'members'), orderBy('order', 'asc'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      setMembers(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as BandMember)));
+      setLoadingMembers(false);
+    }, (err) => {
+      handleFirestoreError(err, OperationType.LIST, 'members');
     });
     return () => unsubscribe();
   }, []);
@@ -137,14 +156,23 @@ export default function Home() {
                   viewport={{ once: true }}
                   className="group flex flex-col md:flex-row items-center justify-between py-8 px-4 hover:bg-white/5 transition-all cursor-pointer"
                 >
-                  <div className="flex flex-col md:flex-row items-center gap-12 text-center md:text-left w-full">
-                    <div className="min-w-[100px]">
-                      <p className="text-warm-gold text-xs font-mono tracking-widest uppercase mb-1">
+                  <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left w-full">
+                    {event.imageUrl ? (
+                      <div className="w-24 h-16 rounded-lg overflow-hidden border border-white/10 hidden md:block group-hover:border-warm-gold transition-colors">
+                        <img src={event.imageUrl} alt={event.city} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" referrerPolicy="no-referrer" />
+                      </div>
+                    ) : (
+                      <div className="min-w-[100px]">
+                        <p className="text-warm-gold text-xs font-mono tracking-widest uppercase mb-1">
+                          {format(new Date(event.date), 'MMM dd')}
+                        </p>
+                        <p className="text-[10px] text-zinc-600 font-mono italic">{format(new Date(event.date), 'yyyy')}</p>
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <p className="text-warm-gold text-[10px] font-mono tracking-widest uppercase mb-1 md:hidden">
                         {format(new Date(event.date), 'MMM dd')}
                       </p>
-                      <p className="text-[10px] text-zinc-600 font-mono italic">{format(new Date(event.date), 'yyyy')}</p>
-                    </div>
-                    <div className="flex-1">
                       <p className="text-xl md:text-2xl font-bold tracking-tight uppercase group-hover:text-warm-gold transition-colors">{event.city}</p>
                       <p className="text-neutral-500 text-sm tracking-widest uppercase">{event.venue}</p>
                     </div>
@@ -183,23 +211,32 @@ export default function Home() {
            </div>
 
            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {GALLERY_IMAGES.map((img, i) => (
-                <div key={i} className={cn(
-                  "relative group overflow-hidden bg-neutral-900 border border-white/5",
-                  i === 2 && "col-span-2 row-span-2 aspect-[4/5] md:aspect-auto", // Make the group photo larger
-                  i !== 2 && "aspect-square"
-                )}>
-                  <img 
-                    src={img} 
-                    className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 object-cover scale-100 group-hover:scale-105"
-                    alt={`Moment ${i + 1}`}
-                    referrerPolicy="no-referrer"
-                  />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
-                    <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-warm-gold">Live Experience 2024</p>
+              {loadingGallery ? (
+                <div className="col-span-full h-64 flex items-center justify-center text-zinc-600">Loading archives...</div>
+              ) : gallery.length > 0 ? (
+                gallery.map((img, i) => (
+                  <div key={img.id} className={cn(
+                    "relative group overflow-hidden bg-neutral-900 border border-white/5",
+                    i % 6 === 2 && "col-span-2 row-span-2 aspect-[4/5] md:aspect-auto", // Make some larger
+                    i % 6 !== 2 && "aspect-square"
+                  )}>
+                    <img 
+                      src={img.url} 
+                      className="w-full h-full grayscale group-hover:grayscale-0 transition-all duration-700 object-cover scale-100 group-hover:scale-105"
+                      alt={img.caption || `Moment ${i + 1}`}
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-6">
+                      <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-warm-gold truncate">{img.caption || 'Live Experience'}</p>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="col-span-full h-64 flex flex-col items-center justify-center border border-dashed border-white/10 rounded-2xl">
+                   <ImageIcon className="w-8 h-8 text-zinc-800 mb-4" />
+                   <p className="text-zinc-600 text-xs uppercase tracking-widest">No images in archive</p>
                 </div>
-              ))}
+              )}
            </div>
         </div>
       </section>
@@ -254,34 +291,62 @@ export default function Home() {
       </section>
 
       {/* Band Members Section */}
-      <section id="members" className="py-24 px-6 bg-black">
+      <section id="members" className="py-24 px-6 bg-black overflow-hidden">
         <div className="max-w-7xl mx-auto">
-          <div className="flex justify-between items-end mb-16">
+          <div className="flex flex-col md:flex-row justify-between items-center mb-16 gap-6">
             <h2 className="text-4xl md:text-6xl font-bold tracking-tighter uppercase">THE <span className="text-warm-gold">HEART</span> OF SOCH</h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {BAND_MEMBERS.map((member, idx) => (
-              <motion.div 
-                key={member.name}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                viewport={{ once: true }}
-                className="group flex flex-col"
+            <div className="flex gap-4">
+              <button 
+                onClick={() => scrollCarousel('left')}
+                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-warm-gold hover:text-black transition-all group"
               >
-                <div className="aspect-[3/4] rounded-2xl overflow-hidden mb-6 filter grayscale group-hover:grayscale-0 transition-all duration-500">
-                  <img 
-                    src={member.imageUrl} 
-                    alt={member.name} 
-                    className="w-full h-full object-cover scale-100 group-hover:scale-110 transition-transform duration-700" 
-                    referrerPolicy="no-referrer"
-                  />
-                </div>
-                <h3 className="text-2xl font-bold tracking-tight mb-1">{member.name}</h3>
-                <p className="text-warm-gold text-xs uppercase tracking-widest font-bold mb-4">{member.role}</p>
-                <p className="text-sm text-zinc-500 leading-relaxed font-light">{member.bio}</p>
-              </motion.div>
-            ))}
+                <ChevronLeft className="w-6 h-6 group-active:scale-95 transition-transform" />
+              </button>
+              <button 
+                onClick={() => scrollCarousel('right')}
+                className="w-12 h-12 rounded-full border border-white/10 flex items-center justify-center hover:bg-warm-gold hover:text-black transition-all group"
+              >
+                <ChevronRight className="w-6 h-6 group-active:scale-95 transition-transform" />
+              </button>
+            </div>
+          </div>
+          
+          <div 
+            ref={carouselRef}
+            className="flex gap-8 overflow-x-auto pb-12 snap-x snap-mandatory scrollbar-hide no-scrollbar"
+            style={{ msOverflowStyle: 'none', scrollbarWidth: 'none' }}
+          >
+            {loadingMembers ? (
+              <div className="w-full h-64 flex items-center justify-center text-zinc-600 italic tracking-widest">Gathering the crew...</div>
+            ) : members.length > 0 ? (
+              members.map((member, idx) => (
+                <motion.div 
+                  key={member.id}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.1 }}
+                  viewport={{ once: true }}
+                  className="min-w-[280px] md:min-w-[320px] snap-center group flex flex-col"
+                >
+                  <div className="aspect-[3/4] rounded-2xl overflow-hidden mb-6 filter grayscale group-hover:grayscale-0 transition-all duration-500 reflection-container relative">
+                    <img 
+                      src={member.imageUrl} 
+                      alt={member.name} 
+                      className="w-full h-full object-cover scale-100 group-hover:scale-110 transition-transform duration-700" 
+                      referrerPolicy="no-referrer"
+                    />
+                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <h3 className="text-2xl font-bold tracking-tight mb-1">{member.name}</h3>
+                  <p className="text-warm-gold text-xs uppercase tracking-widest font-bold mb-4">{member.role}</p>
+                  <p className="text-sm text-zinc-500 leading-relaxed font-light">{member.bio}</p>
+                </motion.div>
+              ))
+            ) : (
+              <div className="w-full py-20 text-center border border-dashed border-white/5 rounded-2xl">
+                 <p className="text-zinc-600 text-xs uppercase tracking-[0.3em]">The heart is silent // No members found</p>
+              </div>
+            )}
           </div>
         </div>
       </section>

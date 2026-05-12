@@ -7,9 +7,7 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return isSignedIn() && 
-             request.auth.token.email == "shaagar5@gmail.com" && 
-             (request.auth.token.email_verified == true || request.auth.token.email_verified == null);
+      return isSignedIn() && request.auth.token.email == "shaagar5@gmail.com";
     }
 
     function isValidId(id) {
@@ -26,49 +24,32 @@ service cloud.firestore {
 
     // 1. Events
     match /events/{eventId} {
-      function isValidEvent(data) {
-        return data.keys().hasAll(['city', 'venue', 'date', 'status', 'createdAt']) &&
-               data.keys().size() <= 6 && // Allow for extra fields if needed (like id, though usually not in data)
-               data.city is string && data.city.size() <= 100 &&
-               data.venue is string && data.venue.size() <= 100 &&
-               data.date is string && data.date.size() <= 30 &&
-               data.status in ['upcoming', 'cancelled', 'completed'] &&
-               data.createdAt is string;
-      }
-
       allow read: if true;
-      allow create: if isAdmin() && isValidId(eventId) && isValidEvent(incoming());
-      allow update: if isAdmin() && isValidId(eventId) && isValidEvent(incoming()) &&
-                    incoming().createdAt == existing().createdAt;
-      allow delete: if isAdmin();
+      allow create, update, delete: if isAdmin();
     }
 
     // 2. Merchandise
     match /merchandise/{itemId} {
-      function isValidMerch(data) {
-        return data.name is string && data.name.size() <= 100 &&
-               data.price is number && data.price >= 0 &&
-               data.stock is number && data.stock >= 0;
-      }
       allow read: if true;
-      allow create: if isAdmin() && isValidId(itemId) && isValidMerch(incoming());
-      allow update: if isAdmin() && isValidId(itemId) && isValidMerch(incoming());
-      allow delete: if isAdmin();
+      allow create, update, delete: if isAdmin();
     }
 
     // 3. Fan Messages
     match /fanMessages/{messageId} {
-      function isValidMessage(data) {
-        return data.keys().hasAll(['name', 'email', 'subject', 'message', 'createdAt']) &&
-               data.keys().size() <= 6 &&
-               data.name is string && data.name.size() <= 100 &&
-               data.email is string && data.email.size() <= 100 &&
-               data.subject is string && data.subject.size() <= 200 &&
-               data.message is string && data.message.size() <= 5000 &&
-               data.createdAt is string;
-      }
-      allow create: if isValidId(messageId) && isValidMessage(incoming());
+      allow create: if true;
       allow read, update, delete: if isAdmin();
+    }
+
+    // 4. Gallery
+    match /gallery/{imageId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
+    }
+
+    // 5. Members
+    match /members/{memberId} {
+      allow read: if true;
+      allow create, update, delete: if isAdmin();
     }
 
     // 0. Default Deny - moved to end

@@ -30,13 +30,16 @@ export default function Navigation() {
     { name: 'Gallery', path: '/#gallery', isExternal: false },
     { name: 'Music', path: '/music', isExternal: false },
     { name: 'About', path: '/#about', isExternal: false },
+    { name: 'Contact', path: '/#contact', isExternal: false },
   ];
 
   const handleLogin = async () => {
     try {
       await signInWithPopup(auth, googleProvider);
-    } catch (error) {
-      console.error(error);
+    } catch (error: any) {
+      if (error.code !== 'auth/popup-closed-by-user') {
+        console.error('Login error:', error);
+      }
     }
   };
 
@@ -78,14 +81,17 @@ export default function Navigation() {
             </Link>
           )}
           {user ? (
-            <button onClick={() => signOut(auth)} className="text-[11px] uppercase tracking-[0.25em] font-medium text-zinc-600 hover:text-red-500">
+            <button onClick={() => signOut(auth)} className="text-[11px] uppercase tracking-[0.25em] font-medium text-white/60 hover:text-red-500 transition-colors">
               Sign Out
             </button>
           ) : (
-             <button onClick={handleLogin} className="px-6 py-2 border border-warm-gold text-warm-gold text-[10px] font-bold uppercase tracking-widest hover:bg-warm-gold hover:text-black transition-all">
-               Book Tickets
+             <button onClick={handleLogin} className="text-[11px] uppercase tracking-[0.25em] font-medium text-white/60 hover:text-warm-gold transition-colors">
+               Login
              </button>
           )}
+          <a href="/#contact" className="px-6 py-2 border border-warm-gold text-warm-gold text-[10px] font-bold uppercase tracking-widest hover:bg-warm-gold hover:text-black transition-all">
+            Book
+          </a>
         </div>
 
         {/* Mobile Menu Toggle */}

@@ -4,6 +4,7 @@ export interface EventEntry {
   venue: string;
   date: string;
   ticketUrl?: string;
+  imageUrl?: string;
   status: 'upcoming' | 'cancelled' | 'completed';
   createdAt?: string;
 }
@@ -37,10 +38,20 @@ export interface FanMessage {
   createdAt: string;
 }
 
+export interface GalleryImage {
+  id?: string;
+  url: string;
+  caption?: string;
+  createdAt: string;
+}
+
 export interface BandMember {
+  id?: string;
   name: string;
   role: string;
   instruments: string[];
   imageUrl: string;
   bio: string;
+  order?: number;
+  createdAt?: string;
 }
