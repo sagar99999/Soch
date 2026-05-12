@@ -156,13 +156,13 @@ export default function Home() {
                   viewport={{ once: true }}
                   className="group flex flex-col md:flex-row items-center justify-between py-8 px-4 hover:bg-white/5 transition-all cursor-pointer"
                 >
-                  <div className="flex flex-col md:flex-row items-center gap-8 text-center md:text-left w-full">
+                  <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 text-center md:text-left w-full">
                     {event.imageUrl ? (
-                      <div className="w-24 h-16 rounded-lg overflow-hidden border border-white/10 hidden md:block group-hover:border-warm-gold transition-colors">
+                      <div className="w-full md:w-24 h-48 md:h-16 rounded-xl md:rounded-lg overflow-hidden border border-white/10 group-hover:border-warm-gold transition-colors">
                         <img src={event.imageUrl} alt={event.city} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500" referrerPolicy="no-referrer" />
                       </div>
                     ) : (
-                      <div className="min-w-[100px]">
+                      <div className="min-w-[100px] mb-4 md:mb-0">
                         <p className="text-warm-gold text-xs font-mono tracking-widest uppercase mb-1">
                           {format(new Date(event.date), 'MMM dd')}
                         </p>

@@ -38,12 +38,22 @@ export default function Hero() {
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-4">
-            <button className="px-10 py-5 bg-white text-black font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-warm-gold transition-all w-full md:w-auto">
+            <a 
+              href="https://www.youtube.com/channel/UC2diELzRtJ1IqufMwej-4UQ" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-10 py-5 bg-white text-black font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-warm-gold transition-all w-full md:w-auto text-center"
+            >
               Watch Latest Session
-            </button>
-            <button className="px-10 py-5 bg-transparent border border-white text-white font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-white hover:text-black transition-all w-full md:w-auto">
+            </a>
+            <a 
+              href="https://open.spotify.com/artist/3J1fiPiGLoctMaZQQl0DJs" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="px-10 py-5 bg-transparent border border-white text-white font-bold uppercase text-[10px] tracking-[0.3em] hover:bg-white hover:text-black transition-all w-full md:w-auto text-center"
+            >
               Listen on Spotify
-            </button>
+            </a>
           </div>
         </motion.div>
       </div>
