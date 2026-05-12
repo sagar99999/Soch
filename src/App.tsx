@@ -20,7 +20,17 @@ function TitleUpdater() {
       '/admin': 'Soch Band | Admin',
     };
 
-    document.title = titleMap[location.pathname] || 'Soch Band';
+    const newTitle = titleMap[location.pathname] || 'Soch Band';
+    document.title = newTitle;
+
+    // Update Open Graph Title
+    let ogTitle = document.querySelector('meta[property="og:title"]');
+    if (!ogTitle) {
+      ogTitle = document.createElement('meta');
+      ogTitle.setAttribute('property', 'og:title');
+      document.head.appendChild(ogTitle);
+    }
+    ogTitle.setAttribute('content', newTitle);
   }, [location]);
 
   return null;

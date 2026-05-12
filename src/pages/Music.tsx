@@ -17,6 +17,9 @@ export default function Music() {
             <h1 className="text-6xl md:text-8xl font-black tracking-tighter uppercase leading-[0.85]">
               CULTURAL <br/> <span className="text-gradient-white">VIBRATIONS.</span>
             </h1>
+            <p className="text-xl md:text-2xl font-medium text-warm-gold/80 leading-relaxed max-w-xl">
+              A seamless fusion of traditional Nepali folk melodies and modern musical arrangements, dedicated to preserving our rich cultural heritage while pushing sonic boundaries for global audiences.
+            </p>
           </div>
         </motion.div>
 
